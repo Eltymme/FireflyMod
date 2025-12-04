@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using Eltymme.FireflyMod.Common;
 using Eltymme.FireflyMod.Scripts.Items;
 
 namespace Eltymme.FireflyMod.Scripts
@@ -10,7 +11,6 @@ namespace Eltymme.FireflyMod.Scripts
         private const string GUID = "eltymme.etg.fireflymod";
         private const string NAME = "Firefly Mod";
         private const string VERSION = "0.0.0";
-        private const string COLOR = "#00FFFF";
 
         public void Start()
         {
@@ -19,11 +19,12 @@ namespace Eltymme.FireflyMod.Scripts
 
         public void GmStart(GameManager g)
         {
-            ExamplePassive.Register();
-            Log($"{NAME} v{VERSION} started successfully.", COLOR);
+            SeasAblaze.Register();
+            
+            Log($"{NAME} v{VERSION} started successfully.", HexColor.Cyan);
         }
 
-        public static void Log(string text, string color="FFFFFF")
+        public static void Log(string text, string color= HexColor.White)
         {
             ETGModConsole.Log($"<color={color}>{text}</color>");
         }
