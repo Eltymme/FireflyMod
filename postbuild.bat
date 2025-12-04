@@ -1,0 +1,1 @@
+xcopy /s /y /q "C:\Users\Eltym\OneDrive\Documents Word\ETG\FireflyMod\bin\Debug\FireflyMod.dll" "C:\Users\Eltym\AppData\Roaming\r2modmanPlus-local\ETG\profiles\Eltymme_Modding\BepInEx\plugins\Eltymme-Firefly\FireflyMod.dll"
