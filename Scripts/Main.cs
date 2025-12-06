@@ -20,6 +20,7 @@ namespace Eltymme.FireflyMod.Scripts
         public void GmStart(GameManager g)
         {
             SeasAblaze.Register();
+            Proto.Register();
             
             Log($"{NAME} v{VERSION} started successfully.", HexColor.Cyan);
         }
