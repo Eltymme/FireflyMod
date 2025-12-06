@@ -29,7 +29,8 @@ namespace Eltymme.FireflyMod.Scripts.Items
         }
 
         public override bool CanBeUsed(PlayerController player) => 
-            player.healthHaver.Armor != 0f || player.healthHaver.GetCurrentHealth() > HEALTH_REMOVING;
+            (player.healthHaver.Armor != 0f || player.healthHaver.GetCurrentHealth() > HEALTH_REMOVING) && 
+            !player.healthHaver.m_isIncorporeal && player.healthHaver.vulnerable;
 
         public override void DoEffect(PlayerController player)
         {
