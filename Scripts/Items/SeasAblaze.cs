@@ -1,4 +1,5 @@
 using Alexandria.ItemAPI;
+using Alexandria.Misc;
 using Eltymme.FireflyMod.Common;
 using UnityEngine;
 
@@ -12,8 +13,8 @@ namespace Eltymme.FireflyMod.Scripts.Items
         private const string LONG_DESC = "Example Long Description\n\n" +
                                          "Wow this description is really looooooooooong!";
 
-        private const float DAMAGE_BOOST_MULTIPLIER = 3f;
-        private const float DAMAGE_BOOST_BALANCER = -0.5f; //lower from -0.5 to start with damage boost, upper to start with damage debuff
+        private const float DAMAGE_BOOST_MULTIPLIER = 1.5f;
+        private const float DAMAGE_BOOST_BALANCER = -0.5f; //upper from -0.5 to start with damage boost, lower to start with damage debuff
         
         public static void Register()
         {
@@ -22,31 +23,40 @@ namespace Eltymme.FireflyMod.Scripts.Items
 
             ItemBuilder.AddSpriteToObject(NAME, RESOURCE_NAME, go);
             item.SetupItem(SHORT_DESC, LONG_DESC, "eltymme-fireflymod");
+            item.quality = ItemQuality.A;
         }
 
         public override void Pickup(PlayerController player)
         {
             base.Pickup(player);
-            player.OnReceivedDamage += PlayerOnReceivedDamage;
+            
+            this.AddPassiveStatModifier(PlayerStats.StatType.Damage, 
+                CalculateDamageBoostMultiplier(player.healthHaver.currentHealth, player.healthHaver.maximumHealth),
+                StatModifier.ModifyMethod.MULTIPLICATIVE);
+            
+            player.stats.RecalculateStatsWithoutRebuildingGunVolleys(player);
+            player.healthHaver.OnHealthChanged += PlayerHealthHaverOnHealthChanged;
         }
-
+        
         public override void DisableEffect(PlayerController player)
         {
             base.DisableEffect(player);
+            
             this.RemovePassiveStatModifier(PlayerStats.StatType.Damage);
-            player.OnReceivedDamage -= PlayerOnReceivedDamage;
+            player.stats.RecalculateStatsWithoutRebuildingGunVolleys(player);
+            player.healthHaver.OnHealthChanged -= PlayerHealthHaverOnHealthChanged;
         }
 
-        private void PlayerOnReceivedDamage(PlayerController player)
+        private void PlayerHealthHaverOnHealthChanged(float resultValue, float maxValue)
         {
             this.RemovePassiveStatModifier(PlayerStats.StatType.Damage);
+            this.AddPassiveStatModifier(PlayerStats.StatType.Damage, 
+                CalculateDamageBoostMultiplier(resultValue, maxValue), StatModifier.ModifyMethod.MULTIPLICATIVE);
             
-            var damageBoost = 1f + DAMAGE_BOOST_MULTIPLIER *
-                              (1f - (player.healthHaver.currentHealth - 0.5f) /
-                                  (player.healthHaver.maximumHealth + DAMAGE_BOOST_BALANCER));
-            
-            Main.Log($"damage boost: {damageBoost}", HexColor.Red);
-            this.AddPassiveStatModifier(PlayerStats.StatType.Damage, damageBoost, StatModifier.ModifyMethod.MULTIPLICATIVE);
+            Owner.stats.RecalculateStatsWithoutRebuildingGunVolleys(Owner);
         }
+
+        private static float CalculateDamageBoostMultiplier(float current, float max) => 
+            1f + DAMAGE_BOOST_MULTIPLIER * (1f - (current - 0.5f) / (max + DAMAGE_BOOST_BALANCER));
     }
 }
